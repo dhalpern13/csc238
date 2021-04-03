@@ -1,6 +1,5 @@
 from collections import Counter
 from datetime import datetime
-from itertools import product
 from math import log, sqrt
 
 import pandas as pd
@@ -17,7 +16,7 @@ output_file = f'data/experiment-{total_runs}-runs-{datetime.now().strftime("%Y%m
 
 n_vals = [3, 10, 50, 200, 500]
 
-k_vals = {
+k_funcs = {
     'const1': lambda n: 1,
     'const3': lambda n: 3,
     'logn': lambda n: smallest_odd_larger(log(n)),
@@ -34,14 +33,18 @@ dists = {
 
 if __name__ == '__main__':
     rows = []
-    for (dist_name, dist), n in product(dists.items(), n_vals):
-        counts = Counter()
-        for i in range(iterations):
-            if i % 10 == 0:
-                print(f'{dist_name}, n={n}: Iteration {i}')
-            counts += run_experiment(n, k_vals, dist, batch_size)
-        row = {'dist': dist_name, 'n': n, **counts}
-        rows.append(row)
+    for n in n_vals:
+        # Compute actual k values for this n.
+        k_vals = {k_name: k_func(n) for k_name, k_func in k_funcs.items()}
+        for dist_name, dist in dists.items():
+            # Keep track of total number of correct for each k value.
+            counts = Counter()
+            for i in range(iterations):
+                if i % 10 == 0:
+                    print(f'{dist_name}, n={n}: Iteration {i}')
+                counts += run_experiment(n, k_vals, dist, batch_size)
+            row = {'dist': dist_name, 'n': n, **counts}
+            rows.append(row)
 
-    df = pd.DataFrame(rows, columns=['dist', 'n', *k_vals.keys()])
+    df = pd.DataFrame(rows, columns=['dist', 'n', *k_funcs.keys()])
     df.to_csv(output_file, index=False)
