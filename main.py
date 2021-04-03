@@ -15,20 +15,21 @@ total_runs = batch_size * iterations
 
 output_file = f'data/experiment-{total_runs}-runs-{datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
 
-n_vals = [3, 10, 50, 200]
+n_vals = [3, 10, 50, 200, 500]
 
 k_vals = {
     'const1': lambda n: 1,
     'const3': lambda n: 3,
     'logn': lambda n: smallest_odd_larger(log(n)),
+    'n^.4': lambda n: smallest_odd_larger(n ** .4),
     'sqrt': lambda n: smallest_odd_larger(sqrt(3 / 4 * n)),
     'n/2': lambda n: smallest_odd_larger(n / 2),
 }
 
 dists = {
-    'uniform[0, 1]': uniform(0, 1),
-    'uniform[.1, .9]': uniform(.1, .8),  # scipy has weird syntax, first param is lower end and second is length
-    'beta[2, 2]': beta(2, 2),
+    'uniform[0,1]': uniform(0, 1),
+    'uniform[.1,.9]': uniform(.1, .8),  # scipy has weird syntax, first param is lower end and second is length
+    'beta[2,2]': beta(2, 2),
 }
 
 if __name__ == '__main__':
